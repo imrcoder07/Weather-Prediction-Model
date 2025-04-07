@@ -1,0 +1,8 @@
+Flask==2.2.5
+numpy==1.24.4
+pandas==1.5.3
+scikit-learn==1.2.2
+joblib==1.2.0
+matplotlib==3.7.1  # if used in notebook
+seaborn==0.12.2    # if used in notebook
+jupyter==1.0.0     # for running .ipynb
