@@ -1,185 +1,286 @@
 <!DOCTYPE html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" class="dark">
+
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>AI Weather Wizard</title>
-
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- Bootstrap Bundle JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Chart.js -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{ url_for('static', filename='css/tailwind.css') }}" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Google Fonts for icons -->
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-
-  <style>
-    body {
-      background: linear-gradient(135deg, #6b46c1, #2b6cb0);
-      color: white;
-      min-height: 100vh;
-      transition: all 0.4s ease;
-    }
-    .glass {
-      background-color: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      animation: fadeIn 1s ease;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    input.form-control {
-      background: rgba(255, 255, 255, 0.85);
-    }
-    .theme-toggle {
-      cursor: pointer;
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      font-size: 1.8rem;
-      color: white;
-    }
-    .loading-spinner {
-      display: none;
-    }
-    .loading .loading-spinner {
-      display: inline-block;
-    }
-    .loading .btn-text {
-      display: none;
-    }
-  </style>
 </head>
 
-<body class="d-flex justify-content-center align-items-center px-3 py-5">
-  <span class="material-icons theme-toggle" onclick="toggleTheme()">dark_mode</span>
+<body class="min-h-screen bg-gradient-to-br from-blue-900 to-purple-900 text-white p-6">
 
-  <div class="container glass">
-    <div class="row">
-      <!-- Form Section -->
-      <div class="col-lg-6 mb-4">
-        <h1 class="display-5 fw-bold mb-3">⚡ AI Weather Wizard</h1>
-        <p class="text-light mb-4">Forecast Tomorrow, Today.</p>
+  <!-- Container: 2-column layout -->
+  <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <form method="POST" onsubmit="showSpinner()">
-          <div class="row g-3">
-            {% for field in [
-              ["temp_lag1", "🌡️ Yesterday Temp"], ["humidity_lag1", "💧 Yesterday Humidity"],
-              ["pressure_lag1", "🌬️ Yesterday Pressure"], ["temp_3day_avg", "🌡️ 3-Day Avg Temp"],
-              ["humidity_3day_avg", "💧 3-Day Avg Humidity"], ["pressure_3day_avg", "🌬️ 3-Day Avg Pressure"],
-              ["cloudcover_3day_avg", "☁️ 3-Day Avg Cloud Cover"], ["windspeed_3day_avg", "🌪️ 3-Day Avg Wind Speed"],
-              ["solarradiation_3day_avg", "🔆 3-Day Avg Solar Radiation"],
-              ["month", "📅 Month"], ["day", "📆 Day"], ["day_of_week", "🗓️ Day of Week"]
-            ] %}
-              <div class="col-md-6">
-                <label class="form-label">{{ field[1] }}</label>
-                <input type="number" step="any" name="{{ field[0] }}" required class="form-control">
-              </div>
-            {% endfor %}
+    <!-- LEFT: Input Form + Summary Card stacked -->
+    <div class="space-y-6">
+      <!-- Input Form -->
+      <div class="bg-white/10 rounded-2xl p-6 shadow-lg">
+        <h1 class="text-xl font-bold mb-1">⚡ AI Weather Wizard</h1>
+        <p class="text-sm text-gray-300 mb-6">Forecast Tomorrow. Today</p>
+        <form method="POST" class="grid grid-cols-2 gap-4">
+          {% set inputs = [
+          ("temp", "🌡️ Yesterday Temp"),
+          ("temp_3day_avg", "📊 3-Day Avg Temp"),
+          ("humidity", "💧 Yesterday Humidity"),
+          ("humidity_3day_avg", "📉 3-Day Avg Humidity"),
+          ("sealevel_pressure", "🌡️ Pressure"),
+          ("pressure_3day_avg", "📉 3-Day Avg Pressure"),
+          ("temp_lag1", "🌡️ Temp Lag 1 Day"),
+          ("humidity_lag1", "💧 Humidity Lag 1 Day"),
+          ("pressure_lag1", "🌡️ Pressure Lag 1 Day"),
+          ("month", "🗓️ Month"),
+          ("day", "📅 Day"),
+          ("day_of_week", "📆 Day of Week")
+          ] %}
+          {% for name, label in inputs %}
+          <div>
+            <label for="{{ name }}" class="block text-sm font-medium text-white mb-1">{{ label }}</label>
+            <input type="number" step="any" name="{{ name }}" id="{{ name }}"
+              class="w-full rounded-lg px-3 py-2 bg-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400">
           </div>
-          <div class="text-center mt-4">
-            <button type="submit" class="btn btn-warning btn-lg px-4">
-              <span class="spinner-border spinner-border-sm loading-spinner"></span>
-              <span class="btn-text">🔮 Predict Now</span>
+          {% endfor %}
+
+          <!-- Year Field -->
+          <div>
+            <label for="year" class="block text-sm font-medium text-white mb-1">🗓️ Year</label>
+            <input type="number" name="year" id="year"
+              class="w-full rounded-lg px-3 py-2 bg-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="e.g. 2025">
+          </div>
+
+          <div class="col-span-2 flex justify-center mt-2">
+            <button type="submit"
+              class="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2 px-6 rounded-lg shadow-lg">
+              ⚡ Predict Weather
             </button>
           </div>
         </form>
       </div>
 
-      <!-- Prediction + Chart Section -->
-      <div class="col-lg-6 d-flex flex-column align-items-center justify-content-center">
-        {% if prediction %}
-        <div class="bg-white bg-opacity-25 rounded p-3 mb-4 text-center w-100 animate__animated animate__fadeIn">
-          <h4 class="text-warning">🌡️ Predicted Temperature:</h4>
-          <h2 class="fw-bold">{{ prediction }} °C</h2>
+      <!-- Summary Card -->
+      <div class="bg-[#3a3387]/60 p-4 rounded-2xl shadow-md">
+        <h2 class="text-white font-semibold text-lg mb-2">💧 Summary of Inputs</h2>
+        <div class="grid grid-cols-3 gap-3 text-sm text-white">
+          <div>
+            <div>🌡️ Yesterday Temp:</div>
+            <div>{{ input_summary.temp }} °C</div>
+          </div>
+          <div>
+            <div>💧 Avg Humidity:</div>
+            <div>{{ input_summary.humidity_3day_avg }} %</div>
+          </div>
+          <div>
+            <div>🧪 Avg Pressure:</div>
+            <div>{{ input_summary.pressure_3day_avg }} hPa</div>
+          </div>
+          <div>
+            <div>📅 Month:</div>
+            <div>{{ input_summary.month }}</div>
+          </div>
+          <div>
+            <div>📆 Day:</div>
+            <div>{{ input_summary.day }}</div>
+          </div>
+          <div>
+            <div>📊 Day of Week:</div>
+            <div>{{ input_summary.day_of_week }}</div>
+          </div>
+          <!-- ✅ Added field for Year -->
+          <div>
+            <div>📅 Year:</div>
+            <div>{{ input_summary.year }}</div>
+          </div>
+
         </div>
-        {% endif %}
-        <canvas id="tempChart" width="400" height="250"></canvas>
+      </div>
+    </div>
+
+    <!-- RIGHT: Results & Charts -->
+    <div class="space-y-6">
+      <!-- Prediction Result -->
+      <div class="bg-white/10 rounded-2xl p-6 shadow-xl">
+        <h2 class="text-lg font-semibold mb-4">Prediction Result</h2>
+        <div class="flex items-center gap-4 mb-4">
+          <img src="{{ url_for('static', filename='icons/sunny.png') }}" alt="weather icon" class="w-10 h-10">
+          <div>
+            <p class="text-sm text-gray-300">Tomorrow’s Forecast</p>
+            <p class="text-2xl font-bold text-yellow-300">
+              {% if prediction is string and "Error" in prediction %}
+              {{ prediction }}
+              {% elif prediction %}
+              {{ prediction }} °C
+              {% else %}
+              No prediction available.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Temperature Line Chart -->
+      <div class="bg-white/10 rounded-2xl p-4 shadow-md">
+        <h2 class="text-white text-lg font-semibold mb-2">Temperature Trend</h2>
+        <canvas id="tempChart" class="w-full h-64"></canvas>
+      </div>
+
+      <!-- Humidity & Pressure Charts (side by side) -->
+      <div class="flex flex-wrap gap-4">
+        <div class="bg-white/10 rounded-2xl p-4 shadow-md flex-1 min-w-[250px]">
+          <h2 class="text-white text-lg font-semibold mb-2">Past Humidity</h2>
+          <canvas id="humidityChart" class="w-full h-40"></canvas>
+        </div>
+        <div class="bg-white/10 rounded-2xl p-4 shadow-md flex-1 min-w-[250px]">
+          <h2 class="text-white text-lg font-semibold mb-2">Past Pressure</h2>
+          <canvas id="pressureChart" class="w-full h-40"></canvas>
+        </div>
+      </div>
+
+      <!-- Pressure Comparison Chart -->
+      <div class="bg-white/10 rounded-2xl p-4 shadow-md">
+        <h2 class="text-white text-lg font-semibold mb-2">Past vs Predicted Pressure</h2>
+        <canvas id="pressureCompareChart" class="w-full h-40"></canvas>
       </div>
     </div>
   </div>
 
-  <footer class="text-center mt-4 text-light small">
-    Built by DreamTech Team ✨ · 2025
-  </footer>
-
-  <!-- JavaScript Section -->
   <script>
-    // 1. Auto-fill date fields
-    window.addEventListener("DOMContentLoaded", () => {
-      const today = new Date();
-      const dayInput = document.querySelector('[name="day"]');
-      const monthInput = document.querySelector('[name="month"]');
-      const dayOfWeekInput = document.querySelector('[name="day_of_week"]');
-
-      if (dayInput && monthInput && dayOfWeekInput) {
-        dayInput.value = today.getDate();
-        monthInput.value = today.getMonth() + 1;
-        dayOfWeekInput.value = today.getDay();
-      }
-
-      const theme = localStorage.getItem("theme") || "dark";
-      document.documentElement.setAttribute("data-bs-theme", theme);
-      document.querySelector(".theme-toggle").textContent = theme === "dark" ? "dark_mode" : "light_mode";
-    });
-
-    // 2. Theme toggle logic
-    function toggleTheme() {
-      const html = document.documentElement;
-      const newTheme = html.getAttribute("data-bs-theme") === "dark" ? "light" : "dark";
-      html.setAttribute("data-bs-theme", newTheme);
-      localStorage.setItem("theme", newTheme);
-      document.querySelector(".theme-toggle").textContent = newTheme === "dark" ? "dark_mode" : "light_mode";
-    }
-
-    // 3. Spinner on form submit
-    function showSpinner() {
-      document.querySelector("form").classList.add("loading");
-    }
-
-    // 4. Forecast Chart
-    const forecastData = typeof forecast !== "undefined" && forecast.length > 0 ? forecast : [];
-
-    if (forecastData.length > 0) {
-      const ctx = document.getElementById('tempChart').getContext('2d');
-      new Chart(ctx, {
+    // Temperature Chart
+    const tempChart = document.getElementById('tempChart');
+    if (tempChart) {
+      new Chart(tempChart, {
         type: 'line',
         data: {
-          labels: ['Day 1', 'Day 2', 'Day 3', 'Day 4', 'Day 5', 'Day 6', 'Day 7'],
-          datasets: [{
-            label: '7-Day Forecast (°C)',
-            data: forecastData,
-            borderColor: '#ffc107',
-            backgroundColor: 'rgba(255, 193, 7, 0.2)',
-            borderWidth: 3,
-            pointRadius: 4,
-            tension: 0.4
-          }]
+          labels: ['-6', '-4', '-2', '0', '2', '4', '6'],
+          datasets: [
+            {
+              label: 'Past Temp (°C)',
+              data: {{ past_temp | tojson | safe }},
+              borderColor: '#38bdf8',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              tension: 0.4,
+              pointRadius: 4
+            },
+            {
+              label: 'Predicted Temp (°C)',
+              data: {{ future_temp | tojson | safe }},
+              borderColor: '#f97316',
+              backgroundColor: 'transparent',
+              borderWidth: 2,
+              tension: 0.4,
+              pointRadius: 4
+            }
+          ]
         },
         options: {
-          responsive: true,
           scales: {
-            y: {
-              ticks: { color: 'white' },
-              grid: { color: 'rgba(255,255,255,0.2)' }
-            },
-            x: {
-              ticks: { color: 'white' },
-              grid: { display: false }
-            }
+            x: { ticks: { color: '#ccc' } },
+            y: { ticks: { color: '#ccc' } }
           },
-          plugins: {
-            legend: {
-              labels: { color: 'white' }
-            }
-          }
+          plugins: { legend: { labels: { color: '#fff' } } }
         }
       });
     }
+  
+    // Humidity Chart
+    const ctxHumidity = document.getElementById('humidityChart');
+    if (ctxHumidity) {
+      new Chart(ctxHumidity, {
+        type: 'bar',
+        data: {
+          labels: ['-6', '-4', '-2', '0', '2', '4', '6'],
+          datasets: [{
+            label: 'Humidity (%)',
+            data: {{ past_humidity | tojson | safe }},
+            backgroundColor: '#38bdf8',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          scales: {
+            x: { ticks: { color: '#ccc' } },
+            y: { ticks: { color: '#ccc' }, beginAtZero: true }
+          },
+          plugins: { legend: { labels: { color: '#fff' } } }
+        }
+      });
+    }
+  
+    // Pressure Chart
+    const ctxPressure = document.getElementById('pressureChart');
+    if (ctxPressure) {
+      new Chart(ctxPressure, {
+        type: 'bar',
+        data: {
+          labels: ['-6', '-4', '-2', '0', '2', '4', '6'],
+          datasets: [{
+            label: 'Pressure (hPa)',
+            data: {{ past_pressure | tojson | safe }},
+            backgroundColor: '#a78bfa',
+            borderRadius: 6
+          }]
+        },
+        options: {
+          scales: {
+            x: { ticks: { color: '#ccc' } },
+            y: { ticks: { color: '#ccc' }, beginAtZero: false }
+          },
+          plugins: { legend: { labels: { color: '#fff' } } }
+        }
+      });
+    }
+  
+    // Pressure Comparison Chart
+    const ctxCompare = document.getElementById('pressureCompareChart');
+    if (ctxCompare) {
+      new Chart(ctxCompare, {
+        type: 'bar',
+        data: {
+          labels: ['-6', '-4', '-2', '0', '2', '4', '6'],
+          datasets: [
+            {
+              label: 'Past Pressure (hPa)',
+              data: {{ past_pressure | tojson | safe }},
+              backgroundColor: '#60a5fa',
+              borderRadius: 6
+            },
+            {
+              label: 'Predicted Pressure (hPa)',
+              data: {{ future_pressure | tojson | safe }},
+              backgroundColor: '#facc15',
+              borderRadius: 6
+            }
+          ]
+        },
+        options: {
+          scales: {
+            x: { ticks: { color: '#ccc' }, stacked: false },
+            y: { ticks: { color: '#ccc' }, beginAtZero: false }
+          },
+          plugins: { legend: { labels: { color: '#fff' } } }
+        }
+      });
+    }
+  
+    // Make Enter behave like Tab
+    document.querySelectorAll('form input').forEach((input, index, inputs) => {
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const next = inputs[index + 1];
+          if (next) {
+            next.focus();
+          } else {
+            document.querySelector('form button[type="submit"]').focus();
+          }
+        }
+      });
+    });
   </script>
+  
 </body>
+
 </html>

@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.idea/
+*.iml
+node_modules/
+static/css/tailwind.css
+.env
+.DS_Store
