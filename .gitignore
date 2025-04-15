@@ -1,8 +1,74 @@
+# Python
 __pycache__/
-*.pyc
-.idea/
-*.iml
-node_modules/
-static/css/tailwind.css
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.sqlite3
+*.log
+*.db
+
+# Flask
+instance/
 .env
+.env.*
+
+# Virtual Environments
+venv/
+ENV/
+env/
+
+# Node (Tailwind CLI/PostCSS)
+node_modules/
+*.map
+
+# Compiled CSS
+static/css/tailwind.css
+
+# System
 .DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# PyInstaller
+*.spec
+dist/
+build/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Logs and debug
+*.log
+*.bak
+*.swp
+*.tmp
+
+# Model files
+*.joblib
+*.h5
+weather_prediction_model.pkl
+
+# Coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+coverage.xml
+*.cover
+.cache
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
